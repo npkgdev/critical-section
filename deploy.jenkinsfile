@@ -33,11 +33,6 @@ pipeline {
         sh 'yarn install'
       }
     }
-    stage('Verificação de estilo de código') {
-      steps {
-        sh 'yarn lint'
-      }
-    }
     stage('Criação da tag') {
       steps {
         sshagent(['jenkins-generated-ssh-key']) {
