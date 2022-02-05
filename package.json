@@ -20,7 +20,8 @@
   "scripts": {
     "build": "tsc",
     "clean-install": "rm -rf node_modules && npm install",
-    "release": "SET GITHUB_TOKEN=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 && npx semantic-release --no-ci"
+    "release": "SET GITHUB_TOKEN=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 && npx semantic-release --no-ci",
+    "test": "tsc"
   },
   "private": true,
   "author": "Douglas de Paula Natalli",
