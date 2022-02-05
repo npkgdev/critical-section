@@ -1,0 +1,60 @@
+config = ""
+
+pipeline {
+  agent any
+  stages {
+    stage('Obter Parâmetros') {
+      steps {
+        script {
+          def ultimaVersao
+          def tags
+
+          tags = sh(script: 'git tag', returnStdout: true)
+
+          if (tags.size() > 0) {
+            ultimaVersao = sh(script: 'git describe --abbrev=0', returnStdout: true).replace('v', '').trim()
+          } else {
+            ultimaVersao = '0.0.0'
+          }
+
+          env.MD068_VERSION = "${ultimaVersao}"
+
+          configFileProvider([configFile(fileId: '5386e294-4678-4f61-8467-7297e8012318', targetLocation: 'CONFIG', variable: 'CONFIG')]) {
+            config = readJSON file: "$CONFIG"
+          }
+        }
+      }
+    }
+    stage('Instalando Versão') {
+      steps {
+        script {
+          try {
+            office365ConnectorSend color: '3399FF', message: "Atualizando MD068 versão ${env.MD068_VERSION}", status: 'INICIADO', webhookUrl: "${env.OFFICE365_HOOK}"
+
+            sshagent(credentials: ['jenkins-generated-ssh-key']) {
+              sh "ssh -v -o StrictHostKeyChecking=no  ${config.usuario}@${config.ip} 'cd ${config.diretorio} && git pull && yarn install && yarn build && pm2 reload ${config.pm2}'"
+            }
+
+            office365ConnectorSend color: '00CC00', message: "MD068 versão ${env.MD068_VERSION} atualizado com sucesso!", status: 'SUCESSO', webhookUrl: "${env.OFFICE365_HOOK}"
+          } catch (Exception e) {
+            office365ConnectorSend color: 'FF3333', message: "Falha ao atualizar MD068 versão ${env.MD068_VERSION}!", status: 'ERRO', webhookUrl: "${env.OFFICE365_HOOK}"
+
+            throw e
+          }
+        }
+      }
+    }
+  }
+  environment {
+    OFFICE365_HOOK = 'https://outlook.office.com/webhook/3f0a9f3d-9f74-4b9e-8c12-b14a35931790@5d71a713-dbcd-4672-81f3-79dbc0a6c5c6/JenkinsCI/99cbe4054ec8499199d2ad2047e559f4/1d7b7e65-802d-4e2c-89b2-8a3d2257790a'
+  }
+  post {
+    cleanup {
+      deleteDir()
+
+      dir("${env.WORKSPACE}@tmp") {
+        deleteDir()
+      }
+    }
+  }
+}

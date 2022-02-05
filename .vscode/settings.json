@@ -1,0 +1,9 @@
+{
+    "editor.tokenColorCustomizations": {
+        "[Material Theme Darker High Contrast]": {
+            "comments": "#57A64A"
+        },
+        "comments": "",
+        "textMateRules": []
+    }
+}
