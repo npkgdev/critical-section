@@ -33,13 +33,6 @@ pipeline {
         sh 'yarn install'
       }
     }
-    stage('Configurar .env') {
-      steps {
-        configFileProvider([configFile(fileId: 'b8547004-5de9-40a4-a1d7-bee31743e268', variable: 'ENV')]) {
-          sh 'cp "$ENV" "${WORKSPACE}/.env"'
-        }
-      }
-    }
     stage('Verificação de estilo de código') {
       steps {
         sh 'yarn lint'
