@@ -28,14 +28,6 @@ pipeline {
       }
     }
 
-    stage('Iniciar notificação') {
-      steps {
-        script {
-          office365ConnectorSend color: '3399FF', message: "Preparando versão ${env.MD068_VERSION} do MD068", status: 'INICIANDO', webhookUrl: "${env.OFFICE365_HOOK}"
-        }
-      }
-    }
-
     stage('Instalação de dependências') {
       steps {
         sh 'yarn install'
@@ -83,12 +75,6 @@ pipeline {
       dir("${env.WORKSPACE}@tmp") {
         deleteDir()
       }
-    }
-    success {
-      office365ConnectorSend color: '00CC00', message: "Versão ${env.MD068_VERSION} do MD068 criada com sucesso!", status: 'SUCESSO', webhookUrl: "${env.OFFICE365_HOOK}"
-    }
-    unsuccessful {
-      office365ConnectorSend color: 'FF3333', message: "Falha na criação da versão ${env.MD068_VERSION} do MD068!", status: 'ERRO', webhookUrl: "${env.OFFICE365_HOOK}"
     }
   }
 }
