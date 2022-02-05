@@ -53,13 +53,13 @@ pipeline {
         }
       }
     }
-    stage('Atualizar branch master') {
+    stage('Atualizar branch main') {
       steps {
         sshagent(['jenkins-generated-ssh-key']) {
-          sh "git checkout master"
-          sh "git pull origin master"
+          sh "git checkout main"
+          sh "git pull origin main"
           sh "git merge tags/v${env.MD068_VERSION} --strategy-option theirs"
-          sh "git push origin master"
+          sh "git push origin main"
         }
       }
     }
